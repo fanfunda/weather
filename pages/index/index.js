@@ -26,7 +26,7 @@ Page({
     nowTemp: '',
     nowWeather: '',
     nowWeatherBackground: '',
-    forecast: [ ]
+    hourlyWeather: [ ]
   },
   
   /**
@@ -42,7 +42,7 @@ Page({
       url: 'https://test-miniprogram.com/api/weather/now',
       //Data 是请求的参数
       data: {
-        city: '广州市'
+        city: '上海市'
       },
       //Success 确定了我们在获取数据成功时进行的操作，它的值应当是一个方法/函数
       success: res => {
@@ -68,22 +68,24 @@ Page({
           }
         })
 
+        //获取天气信息
+        let forecast = result.forecast
         //获取当前小时数
         let nowHour = new Date().getHours()
         //定义空数据
-        let forecast = [ ]
+        let hourlyWeather = [ ]
         //循环输出每隔三小时的数据
         for (let i = 0; i < 24; i += 3) {
-          forecast.push({
+          hourlyWeather.push({
             time: (i + nowHour) % 24 + '时',
-            iconPath: '/images/sunny-icon.png',
-            temp: '12°'
+            iconPath: '/images/' + forecast[i / 3].weather + '-icon.png',
+            temp: forecast[i / 3].temp + '°'
           })
         }
-        forecast[0].time = '现在'
+        hourlyWeather[0].time = '现在'
         //调用数据
         this.setData({
-          forecast: forecast
+          hourlyWeather: hourlyWeather
         })
 
       },

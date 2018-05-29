@@ -46,48 +46,10 @@ Page({
       },
       //Success 确定了我们在获取数据成功时进行的操作，它的值应当是一个方法/函数
       success: res => {
-        console.log(res)
+        //console.log(res)
         let result = res.data.result
-        let temp = result.now.temp
-        let weather = result.now.weather
-        console.log(temp, weather)
-        //绑定数据
-        this.setData({
-          nowTemp: temp + '°',
-          nowWeather: weatherMap[weather],
-          nowWeatherBackground: '/images/' + weather + '-bg.png'
-        })
-
-        // 变换导航条背景色
-        wx.setNavigationBarColor({
-          frontColor: '#000000',
-          backgroundColor: weatherColorMap[weather],
-          animation: {
-            duration: 400,
-            timingFunc: 'easeIn'
-          }
-        })
-
-        //获取天气信息
-        let forecast = result.forecast
-        //获取当前小时数
-        let nowHour = new Date().getHours()
-        //定义空数据
-        let hourlyWeather = [ ]
-        //循环输出每隔三小时的数据
-        for (let i = 0; i < 24; i += 3) {
-          hourlyWeather.push({
-            time: (i + nowHour) % 24 + '时',
-            iconPath: '/images/' + forecast[i / 3].weather + '-icon.png',
-            temp: forecast[i / 3].temp + '°'
-          })
-        }
-        hourlyWeather[0].time = '现在'
-        //调用数据
-        this.setData({
-          hourlyWeather: hourlyWeather
-        })
-
+        this.setNow(result)
+        this.setHourlyWeather(result)
       },
 
       //complete回调函数，接口请求完成后，无论成功或失败都会执行
@@ -97,6 +59,55 @@ Page({
       }
 
     })
+  },
+
+  //现在天气状况函数
+  setNow(result){
+    let temp = result.now.temp
+    let weather = result.now.weather
+    //console.log(temp, weather)
+    //绑定数据
+    this.setData({
+      nowTemp: temp + '°',
+      nowWeather: weatherMap[weather],
+      nowWeatherBackground: '/images/' + weather + '-bg.png'
+    })
+
+    // 变换导航条背景色
+    wx.setNavigationBarColor({
+      frontColor: '#000000',
+      backgroundColor: weatherColorMap[weather],
+      animation: {
+        duration: 400,
+        timingFunc: 'easeIn'
+      }
+    })
+
+  },
+
+  //未来天气状况函数
+  setHourlyWeather(result){
+
+    //获取天气信息
+    let forecast = result.forecast
+    //获取当前小时数
+    let nowHour = new Date().getHours()
+    //定义空数据
+    let hourlyWeather = []
+    //循环输出每隔三小时的数据
+    for (let i = 0; i < 8; i += 1) {
+      hourlyWeather.push({
+        time: (i * 3 + nowHour) % 24 + '时',
+        iconPath: '/images/' + forecast[i].weather + '-icon.png',
+        temp: forecast[i].temp + '°'
+      })
+    }
+    hourlyWeather[0].time = '现在'
+    //调用数据
+    this.setData({
+      hourlyWeather: hourlyWeather
+    })
+
   },
 
   /**

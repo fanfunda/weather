@@ -123,6 +123,15 @@ Page({
     })
   },
 
+  onTapDayWeather() {
+    //消息提示框
+    wx.showToast()
+    //页面跳转
+    wx.navigateTo({
+      url: '/pages/list/list'
+    })
+  },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */

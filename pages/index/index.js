@@ -17,6 +17,9 @@ const weatherColorMap = {
   'heavyrain': '#c5ccd0',
   'snow': '#aae1fc'
 }
+
+//建立常量映射，引入qqmap-wx-jssdk.js文件
+const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
 Page({
 
   /**
@@ -36,6 +39,9 @@ Page({
    * 载入时产生的效果
    */
   onLoad: function () {
+    this.qqmapsdk = new QQMapWX({
+      key: 'DP2BZ-DVGWF-MAYJZ-N5MIJ-A2VZZ-2RFAE'
+      })
      this.getNow()
   },getNow: function(callback) {
     //获取数据，一般为json格式
@@ -129,6 +135,28 @@ Page({
     //页面跳转
     wx.navigateTo({
       url: '/pages/list/list'
+    })
+  },
+
+
+  //获取位置信息
+  onTapLocation() {
+    wx.getLocation({
+      success: res => {
+        //console.log(res.latitude, res.longitude)
+        this.qqmapsdk.reverseGeocoder({
+          //获取经纬度
+          location: {
+            latitude: res.latitude,
+            longitude: res.longitude
+          },
+          //获取成功后转化为城市
+          success: res => {
+            let city = res.result.address_component.city
+            console.log(city)
+          }
+        })
+      }
     })
   },
 

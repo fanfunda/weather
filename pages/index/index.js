@@ -26,7 +26,9 @@ Page({
     nowTemp: '',
     nowWeather: '',
     nowWeatherBackground: '',
-    hourlyWeather: [ ]
+    hourlyWeather: [ ],
+    todayDate: '',
+    todayTemp: ''
   },
   
   /**
@@ -48,8 +50,10 @@ Page({
       success: res => {
         //console.log(res)
         let result = res.data.result
+        //调用已定义好的函数
         this.setNow(result)
         this.setHourlyWeather(result)
+        this.setToday(result)
       },
 
       //complete回调函数，接口请求完成后，无论成功或失败都会执行
@@ -108,6 +112,15 @@ Page({
       hourlyWeather: hourlyWeather
     })
 
+  },
+
+  //今天的最高最低气温和日期函数
+  setToday(result) {
+    let date = new Date()
+    this.setData({
+      todayTemp: `${result.today.minTemp}° - ${result.today.maxTemp}°`,
+      todayDate: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} 今天`
+    })
   },
 
   /**

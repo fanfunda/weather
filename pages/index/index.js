@@ -31,7 +31,9 @@ Page({
     nowWeatherBackground: '',
     hourlyWeather: [ ],
     todayDate: '',
-    todayTemp: ''
+    todayTemp: '',
+    city: '北京市',
+    locationTipsText: "点击获取当前位置"
   },
   
   /**
@@ -50,7 +52,7 @@ Page({
       url: 'https://test-miniprogram.com/api/weather/now',
       //Data 是请求的参数
       data: {
-        city: '上海市'
+        city: this.data.city
       },
       //Success 确定了我们在获取数据成功时进行的操作，它的值应当是一个方法/函数
       success: res => {
@@ -134,7 +136,8 @@ Page({
     wx.showToast()
     //页面跳转
     wx.navigateTo({
-      url: '/pages/list/list'
+      //url?后可传递参数
+      url: '/pages/list/list?city=' + this.data.city
     })
   },
 
@@ -153,7 +156,12 @@ Page({
           //获取成功后转化为城市
           success: res => {
             let city = res.result.address_component.city
-            console.log(city)
+            this.setData({
+              city: city,
+              locationTipsText: ""
+            })
+            //保持使用定位城市信息
+            this.getNow()
           }
         })
       }

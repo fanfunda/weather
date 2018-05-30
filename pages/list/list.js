@@ -9,13 +9,19 @@ Page({
    * 页面的初始数据
    */
   data: {
-    weekWeather: []
+    weekWeather: [ ],
+    city: '北京市'
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function () {
+  onLoad: function (options) {
+    //将index页面传递的位置信息绑定到city
+    this.setData({
+      city: options.city
+    })
+    //console.log(options.city)
     //调用函数
     this.getWeekWeather()
   },
@@ -27,7 +33,7 @@ Page({
       url: 'https://test-miniprogram.com/api/weather/future',
       data: {
         time: new Date().getTime(),
-        city: "上海市"
+        city: this.data.city
       },
       success: res => {
         let result = res.data.result

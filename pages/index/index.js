@@ -20,6 +20,16 @@ const weatherColorMap = {
 
 //建立常量映射，引入qqmap-wx-jssdk.js文件
 const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
+
+
+const UNPROMPTED = 0
+const UNAUTHORIZED = 1
+const AUTHORIZED = 2
+
+
+const UNPROMPTED_TIPS = '点击获取当前位置'
+const UNAUTHORIZED_TIPS = '点击开启位置权限'
+const AUTHORIZED_TIPS = ''
 Page({
 
   /**
@@ -33,7 +43,8 @@ Page({
     todayDate: '',
     todayTemp: '',
     city: '北京市',
-    locationTipsText: "点击获取当前位置"
+    locationTipsText: UNPROMPTED_TIPS,
+    locationAuthType: UNPROMPTED
   },
   
   /**
@@ -142,10 +153,22 @@ Page({
   },
 
 
-  //获取位置信息
+  //是否允许获取位置信息函数
   onTapLocation() {
+    if (this.data.locationAuthType === UNAUTHORIZED)
+      wx.openSetting()
+    else
+      this.getLocation()
+  },
+
+  //获取位置信息成功或失败执行的函数
+  getLocation() {
     wx.getLocation({
       success: res => {
+        this.setData({
+          locationAuthType: AUTHORIZED,
+          locationTipsText: AUTHORIZED_TIPS
+        })
         //console.log(res.latitude, res.longitude)
         this.qqmapsdk.reverseGeocoder({
           //获取经纬度
@@ -158,13 +181,20 @@ Page({
             let city = res.result.address_component.city
             this.setData({
               city: city,
-              locationTipsText: ""
             })
             //保持使用定位城市信息
             this.getNow()
           }
         })
+      },
+      //fail失败后执行
+      fail: () => {
+        this.setData({
+          locationAuthType: UNAUTHORIZED,
+          locationTipsText: UNAUTHORIZED_TIPS
+        })
       }
+
     })
   },
 
@@ -179,7 +209,23 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    
+    wx.getSetting({
+      success: res => {
+        //获取位置权限设置的值
+        let auth = res.authSetting['scope.userLocation']
+        //console.log(auth)
+        if (auth && this.data.locationAuthType != AUTHORIZED) {
+          //权限从关闭到开启
+          this.setData({
+            locationAuthType: AUTHORIZED,
+            locationTipsText: AUTHORIZED_TIPS
+          })
+          //重新获取位置信息
+          this.getLocation()
+        }
+        //权限从开启到关闭未处理
+      }
+    })
   },
 
   /**

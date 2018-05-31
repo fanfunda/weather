@@ -156,7 +156,16 @@ Page({
   //是否允许获取位置信息函数
   onTapLocation() {
     if (this.data.locationAuthType === UNAUTHORIZED)
-      wx.openSetting()
+      //调用客户端小程序设置界面
+      wx.openSetting({
+        success: res => {
+          //console.log(res)
+          //查询一下用户是否授权定位权限
+          if (res.authSetting['scope.userLocation']) {
+            this.getLocation()
+          }
+        }
+      })
     else
       this.getLocation()
   },
@@ -209,23 +218,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    wx.getSetting({
-      success: res => {
-        //获取位置权限设置的值
-        let auth = res.authSetting['scope.userLocation']
-        //console.log(auth)
-        if (auth && this.data.locationAuthType != AUTHORIZED) {
-          //权限从关闭到开启
-          this.setData({
-            locationAuthType: AUTHORIZED,
-            locationTipsText: AUTHORIZED_TIPS
-          })
-          //重新获取位置信息
-          this.getLocation()
-        }
-        //权限从开启到关闭未处理
-      }
-    })
+      
   },
 
   /**

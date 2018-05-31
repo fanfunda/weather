@@ -55,7 +55,34 @@ Page({
     this.qqmapsdk = new QQMapWX({
       key: 'DP2BZ-DVGWF-MAYJZ-N5MIJ-A2VZZ-2RFAE'
       })
-     this.getNow()
+
+    //调用系统设置界面
+    wx.getSetting({
+      success: res => {
+        //查询一下用户是否授权定位权限
+        let auth = res.authSetting['scope.userLocation']
+        //true授权就赋值为AUTHORIZED，更新为当前位置
+        let locationAuthType = auth ? AUTHORIZED
+        //如果为false,就赋值为UNAUTHORIZED，让用户点击开启权限；如果也不是false，就赋值为UNPROMPTED，让用户获取权限
+          : (auth === false) ? UNAUTHORIZED : UNPROMPTED
+          //对应显示的文字内容
+        let locationTipsText = auth ? AUTHORIZED_TIPS
+          : (auth === false) ? UNAUTHORIZED_TIPS : UNPROMPTED_TIPS
+        //渲染数据
+        this.setData({
+          locationAuthType: locationAuthType,
+          locationTipsText: locationTipsText
+        })
+
+        if (auth)
+          this.getCityAndWeather()
+        else
+          this.getNow() //未授权使用默认城市北京
+      },
+      fail: () => {
+        this.getNow() //使用默认城市北京
+      }
+    })
   },getNow: function(callback) {
     //获取数据，一般为json格式
     wx.request({
@@ -162,16 +189,16 @@ Page({
           //console.log(res)
           //查询一下用户是否授权定位权限
           if (res.authSetting['scope.userLocation']) {
-            this.getLocation()
+            this.getCityAndWeather()
           }
         }
       })
     else
-      this.getLocation()
+      this.getCityAndWeather()
   },
 
   //获取位置信息成功或失败执行的函数
-  getLocation() {
+  getCityAndWeather() {
     wx.getLocation({
       success: res => {
         this.setData({

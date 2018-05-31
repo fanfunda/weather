@@ -25,11 +25,6 @@ const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
 const UNPROMPTED = 0
 const UNAUTHORIZED = 1
 const AUTHORIZED = 2
-
-
-const UNPROMPTED_TIPS = '点击获取当前位置'
-const UNAUTHORIZED_TIPS = '点击开启位置权限'
-const AUTHORIZED_TIPS = ''
 Page({
 
   /**
@@ -43,7 +38,6 @@ Page({
     todayDate: '',
     todayTemp: '',
     city: '北京市',
-    locationTipsText: UNPROMPTED_TIPS,
     locationAuthType: UNPROMPTED
   },
   
@@ -61,17 +55,12 @@ Page({
       success: res => {
         //查询一下用户是否授权定位权限
         let auth = res.authSetting['scope.userLocation']
-        //true授权就赋值为AUTHORIZED，更新为当前位置
-        let locationAuthType = auth ? AUTHORIZED
-        //如果为false,就赋值为UNAUTHORIZED，让用户点击开启权限；如果也不是false，就赋值为UNPROMPTED，让用户获取权限
-          : (auth === false) ? UNAUTHORIZED : UNPROMPTED
-          //对应显示的文字内容
-        let locationTipsText = auth ? AUTHORIZED_TIPS
-          : (auth === false) ? UNAUTHORIZED_TIPS : UNPROMPTED_TIPS
         //渲染数据
         this.setData({
-          locationAuthType: locationAuthType,
-          locationTipsText: locationTipsText
+          //true授权就赋值为AUTHORIZED，更新为当前位置
+          locationAuthType: auth ? AUTHORIZED
+          //如果为false,就赋值为UNAUTHORIZED，让用户点击开启权限；如果也不是false，就赋值为UNPROMPTED，让用户获取权限
+            : (auth === false) ? UNAUTHORIZED : UNPROMPTED
         })
 
         if (auth)
@@ -203,7 +192,6 @@ Page({
       success: res => {
         this.setData({
           locationAuthType: AUTHORIZED,
-          locationTipsText: AUTHORIZED_TIPS
         })
         //console.log(res.latitude, res.longitude)
         this.qqmapsdk.reverseGeocoder({
@@ -227,7 +215,6 @@ Page({
       fail: () => {
         this.setData({
           locationAuthType: UNAUTHORIZED,
-          locationTipsText: UNAUTHORIZED_TIPS
         })
       }
 
